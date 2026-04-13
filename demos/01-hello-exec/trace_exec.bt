@@ -1,0 +1,18 @@
+#!/usr/bin/env bpftrace
+/*
+ * trace_exec.bt — Sistemdeki her execve() cagrisini trace eder.
+ * PID, process adi ve calistirilan binary'yi gosterir.
+ *
+ * Kullanim: sudo bpftrace trace_exec.bt
+ */
+
+BEGIN
+{
+    printf("Exec call'lari izleniyor... Ctrl+C ile durdurun.\n");
+    printf("%-6s %-16s %s\n", "PID", "COMM", "FILENAME");
+}
+
+tracepoint:syscalls:sys_enter_execve
+{
+    printf("%-6d %-16s %s\n", pid, comm, str(args.filename));
+}

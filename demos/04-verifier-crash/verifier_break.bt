@@ -1,0 +1,22 @@
+#!/usr/bin/env bpftrace
+/*
+ * verifier_break.bt — Kasitli olarak bozuk script!
+ * Bu, verifier/runtime hatalari tetikleyecek.
+ *
+ * GOREV: Calistirin, hatayi okuyun, sonra verifier_fix.bt'de duzeltin.
+ *
+ * Kullanim: sudo bpftrace verifier_break.bt
+ */
+
+BEGIN
+{
+    printf("Bozuk eBPF calistiriliyor...\n");
+}
+
+tracepoint:syscalls:sys_enter_openat
+{
+    @lookup[comm] = count();
+    @total = @total + 1;
+    $avg = @total / 0;
+    printf("Ortalama: %d\n", $avg);
+}

@@ -1,0 +1,29 @@
+#!/usr/bin/env bpftrace
+/*
+ * net_counter.bt — Kernel seviyesinde gelen paketleri process bazinda sayar.
+ * Her 5 saniyede bir ozet yazdirir.
+ *
+ * Kullanim: sudo bpftrace net_counter.bt
+ */
+
+BEGIN
+{
+    printf("Gelen paketler process bazinda sayiliyor... Ctrl+C ile durdurun.\n");
+}
+
+kprobe:ip_rcv
+{
+    @packets[comm] = count();
+}
+
+interval:s:5
+{
+    printf("\n--- Paket sayilari (son 5sn) ---\n");
+    print(@packets);
+    clear(@packets);
+}
+
+END
+{
+    clear(@packets);
+}

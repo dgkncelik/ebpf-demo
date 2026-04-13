@@ -1,0 +1,38 @@
+#!/usr/bin/env bpftrace
+/*
+ * latency_hist.bt — read() syscall latency'sini olcer.
+ * Entry/exit map pattern'ini gosterir.
+ *
+ * Referans: eBPFHub — Maps and multiple programs
+ * https://ebpfhub.dev/tr/exercises/chapter-2/intro-maps-and-programs/
+ *
+ * Kullanim: sudo bpftrace latency_hist.bt
+ */
+
+BEGIN
+{
+    printf("read() latency'si olculuyor... Ctrl+C ile histogram gorun.\n\n");
+}
+
+tracepoint:syscalls:sys_enter_read
+{
+    @start[tid] = nsecs;
+}
+
+tracepoint:syscalls:sys_exit_read
+/@start[tid]/
+{
+    $delta_us = (nsecs - @start[tid]) / 1000;
+    @latency_us = hist($delta_us);
+    @process_bazli[comm] = avg($delta_us);
+    delete(@start[tid]);
+}
+
+END
+{
+    printf("\n--- Read latency histogram (mikrosaniye) ---\n");
+    print(@latency_us);
+    printf("\n--- Process bazinda ortalama read latency (mikrosaniye) ---\n");
+    print(@process_bazli);
+    clear(@start);
+}

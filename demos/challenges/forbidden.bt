@@ -1,0 +1,28 @@
+#!/usr/bin/env bpftrace
+/*
+ * forbidden.bt — Bonus Challenge 3
+ * Birisi "rm" calistirdiginda buyuk bir uyari yazdirin.
+ *
+ * GOREV: Asagidaki probe'u yazin:
+ *   1. tracepoint:syscalls:sys_enter_execve'e hook yapin
+ *   2. filename'in "rm" icerip icermedigini kontrol edin
+ *      Ipucu: strncmp(str(args.filename), "/usr/bin/rm", 11) == 0
+ *   3. UID, PID ve komutu iceren bir uyari kutusu yazdirin
+ *
+ * Kullanim: sudo bpftrace forbidden.bt
+ */
+
+BEGIN
+{
+    printf("Tehlikeli rm komutlari izleniyor... Ctrl+C ile durdurun.\n\n");
+}
+
+// TODO: sys_enter_execve'e hook yapin
+// /usr/bin/rm icin strncmp ile filtreleyin
+// Uyari kutusu yazdirin:
+//
+//   *********************************************
+//   *** UYARI: rm TESPIT EDILDI!             ***
+//   *** uid=1000  pid=12345                  ***
+//   *** cmd: /usr/bin/rm                     ***
+//   *********************************************

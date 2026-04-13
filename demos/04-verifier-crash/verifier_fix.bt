@@ -1,0 +1,25 @@
+#!/usr/bin/env bpftrace
+/*
+ * verifier_fix.bt — Bozuk script'i duzeltin!
+ *
+ * GOREV: Bu dosyayi duzenleyerek dogru calisan bir hale getirin.
+ * Hedef: Process basina dosya acma sayisi, her 3 saniyede ozet yazdirma.
+ *
+ * Kullanim: sudo bpftrace verifier_fix.bt
+ */
+
+BEGIN
+{
+    printf("Dosya acma islemleri sayiliyor... Ctrl+C ile durdurun.\n\n");
+}
+
+tracepoint:syscalls:sys_enter_openat
+{
+    // TODO: Process adi bazinda bir map ile dosya acmalarini sayin
+    // TODO: Toplam sayiciyi guvenli bir sekilde artirin (sifira bolme yok!)
+}
+
+interval:s:3
+{
+    // TODO: Process bazinda sayilari yazdirin ve temizleyin
+}

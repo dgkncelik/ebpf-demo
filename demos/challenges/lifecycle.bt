@@ -1,0 +1,31 @@
+#!/usr/bin/env bpftrace
+/*
+ * lifecycle.bt — Bonus Challenge 1
+ * Process olusturma ve cikis event'lerini zaman damgasiyla takip edin.
+ *
+ * GOREV: Asagidaki iki probe'u doldurun!
+ *
+ * Tracepoint'ler:
+ *   - tracepoint:sched:sched_process_exec  (process baslar)
+ *   - tracepoint:sched:sched_process_exit  (process cikar)
+ *
+ * Kullanilacak degiskenler: elapsed, pid, comm
+ *
+ * Beklenen cikti formati:
+ *   [EXEC] 123456789  pid=1234   bash
+ *   [EXIT] 234567890  pid=1234   bash
+ *
+ * Kullanim: sudo bpftrace lifecycle.bt
+ */
+
+BEGIN
+{
+    printf("Process yasam dongusu izleniyor... Ctrl+C ile durdurun.\n\n");
+}
+
+// TODO: sched_process_exec icin probe ekleyin
+// Cikti: "[EXEC] <elapsed>  pid=<pid>   <comm>"
+
+
+// TODO: sched_process_exit icin probe ekleyin
+// Cikti: "[EXIT] <elapsed>  pid=<pid>   <comm>"

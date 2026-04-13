@@ -1,0 +1,38 @@
+#!/usr/bin/env bpftrace
+/*
+ * tcp_connect.bt — Yeni TCP baglantilarini hedef IP ve port ile trace eder.
+ *
+ * Referans: eBPFHub — Tracking network connections
+ * https://ebpfhub.dev/tr/exercises/chapter-3/socket-and-connect/
+ *
+ * Kullanim: sudo bpftrace tcp_connect.bt
+ */
+
+BEGIN
+{
+    printf("TCP baglantilar izleniyor... Ctrl+C ile durdurun.\n");
+    printf("%-8s %-6s %-16s %-6s %-6s\n",
+        "ZAMAN", "PID", "COMM", "DPORT", "DURUM");
+}
+
+tracepoint:sock:inet_sock_set_state
+/args.protocol == 6/
+{
+    $newstate = args.newstate;
+    $dport = args.dport;
+
+    if ($newstate == 1) {
+        printf("%-8lld %-6d %-16s %-6d ESTABLISHED\n",
+            elapsed / 1000000, pid, comm, $dport);
+        @established[comm, $dport] = count();
+    } else if ($newstate == 7) {
+        printf("%-8lld %-6d %-16s %-6d CLOSE\n",
+            elapsed / 1000000, pid, comm, $dport);
+    }
+}
+
+END
+{
+    printf("\n--- Baglanti ozeti ---\n");
+    print(@established);
+}

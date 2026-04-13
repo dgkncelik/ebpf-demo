@@ -1,0 +1,32 @@
+#!/usr/bin/env bpftrace
+/*
+ * slow_reads.bt — Bonus Challenge 2
+ * 1ms'den uzun suren read() syscall'larini bulun.
+ *
+ * GOREV: Entry/exit map pattern'ini implemente edin.
+ *
+ * Strateji:
+ *   1. sys_enter_read'de: nsecs'i tid ile key'lenmis bir map'e kaydedin
+ *   2. sys_exit_read'de: delta hesaplayin, > 1.000.000 ns (1ms) ise yazdirin
+ *   3. Map entry'sini temizleyin: delete(@start[tid])
+ *
+ * Referans: eBPFHub — Maps and multiple programs
+ * https://ebpfhub.dev/tr/exercises/chapter-2/intro-maps-and-programs/
+ *
+ * Kullanim: sudo bpftrace slow_reads.bt
+ */
+
+BEGIN
+{
+    printf("Yavas read() call'lari araniyor (>1ms)... Ctrl+C ile durdurun.\n");
+    printf("%-6s %-16s %-12s\n", "PID", "COMM", "LATENCY(ms)");
+}
+
+// TODO: tracepoint:syscalls:sys_enter_read
+//   Timestamp kaydedin: @start[tid] = nsecs;
+
+
+// TODO: tracepoint:syscalls:sys_exit_read  (filtre: /@start[tid]/)
+//   Delta hesaplayin: $delta = nsecs - @start[tid];
+//   $delta > 1000000 ise pid, comm ve latency'yi yazdirin
+//   Temizleyin: delete(@start[tid]);
