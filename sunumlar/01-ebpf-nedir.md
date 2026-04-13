@@ -14,13 +14,45 @@ Bir event tetiklendiginde (bir process calistirilir, bir dosya acilir, bir netwo
 
 Bu islem **kernel seviyesinde** gerceklesir ve size user space'den tek basina elde edilmesi imkansiz olan sistem davranisi gorunurlugu saglar.
 
-[REVIEW: burada biraz daha detay ver, ebpf bunu nasil yapiyor: yapilma methodlari neler? bu metodlar arasinda nasil farkliliklar var]
+### eBPF Bunu Nasil Yapiyor?
+
+eBPF programlari kernel'e yuklenmenin **birden fazla yolu** vardir. Her yontemin kendine ozgu avantajlari ve kullanim alanlari bulunur:
+
+| Yontem | Nasil Calisir | Avantaji | Dezavantaji |
+|--------|-------------|----------|-------------|
+| **bpftrace** | Tek satirlik veya kisa script'ler yazar, bpftrace dahili olarak compile + load yapar | Hizli prototipleme, ogrenme icin ideal | Karmasik programlar icin sinirli |
+| **libbpf + C** | C'de eBPF programi yazarsiniz, clang ile compile edersiniz, libbpf ile yuklersiniz | Tam kontrol, production-grade | Daha fazla kod, derleme adimi gerekli |
+| **BCC (Python)** | Python'da eBPF C kodu gomulu yazarsiniz, BCC runtime'da compile eder | Python rahatligi, hizli gelistirme | Runtime'da LLVM gerektirir, yavas baslangic |
+| **Go (cilium/ebpf, bpf2go)** | Go'da eBPF programi yazarsiniz, tek binary olarak dagitirsiniz | Tek binary, kolay dagitim | Go bilgisi gerekir |
+
+**bpftrace** bugun kullanacagimiz yontem — ogrenme icin en uygun. Production'da genellikle **libbpf + C** veya **Go** tercih edilir.
 
 ---
 
-## Neden Onemli? — Gercek Hayat Senaryosu
+## BPF'ten eBPF'e: Tarihce
 
-[REVIEW: Neden ebpf gibi birseye ihtiyac duyuldu? Gunluk hayatimizda kullanidigimiz araclar var mi ebpf ile calisan? bpf ile ebpf arasinda fark nedir?]
+| Yil | Olay |
+|-----|------|
+| 1992 | **BPF (Berkeley Packet Filter)** — Sadece paket filtreleme icin tasarlandi. `tcpdump` bunun uzerine calısır. Basit bir sanal makine: paketleri filtreler, gecer/atar. |
+| 2014 | **eBPF (extended BPF)** — Alexei Starovoitov, BPF'i Linux kernel'a genisleterek yeniden yazdı. Artik sadece paket degil, **herhangi bir kernel event'ine** hook olabilir. Map'ler, helper fonksiyonlar, JIT compiler eklendi. |
+| 2016+ | eBPF program turleri hizla artti: XDP, tracepoint, kprobe, uprobe, cgroup, LSM... |
+| Bugun | eBPF, modern Linux observability ve security altyapisinin temelidir. |
+
+**Temel fark:** BPF sadece "paket filtrele, gec ya da at" yapabilirken, eBPF **herhangi bir kernel event'inde** ozel kod calistirmaniza, veri toplamaniza, kararlar almaniza olanak tanir.
+
+## Neden eBPF'e Ihtiyac Duyuldu?
+
+Linux kernel'i izlemek ve debug etmek icin geleneksel yontemler **ya cok yavas, ya cok riskli, ya da cok sinirlidir:**
+
+| Geleneksel Yontem | Problem |
+|-------------------|---------|
+| `strace` | Tek process'e attach olur, **~%50 overhead** yaratir, production'da kullanilamaz |
+| `tcpdump` | Sadece network paketleri, process context yok — "bu paketi kim gonderdi?" bilinmez |
+| Kernel module yazmak | Root gerekir, hata yaparsanız **kernel panic**, her kernel versiyonunda yeniden derleme |
+| `/proc` & `/sys` okumak | Anlik snapshot, gercek zamanli degil, sinirli bilgi |
+| Log dosyalari | Olay olduktan **sonra**, kayip olabilir, ilgisiz bilgi seli |
+
+eBPF bunlarin **hepsini** tek bir mekanizmayla cozer: guvenli, hizli, gercek zamanli, process context'li kernel izleme.
 
 Diyelim ki sunucuda bir problem var:
 
@@ -107,12 +139,27 @@ Nasil bir web sitesi browser'inizi cokertemezse (sandbox sayesinde), bir eBPF pr
 
 **Adim adim:**
 
-1. **Yaz** — Kucuk bir program yazarsiniz (C veya bpftrace ile)
-[REVIEW:  bftrace ile yaparsak ne oluyor c ile yazip derleyince ne oluyor]
+1. **Yaz** — Kucuk bir program yazarsiniz. Iki yol var:
+   - **bpftrace ile:** Yuksek seviyeli script dili. `tracepoint:syscalls:sys_enter_openat { printf("%s\n", comm); }` gibi tek satirda is yapabilirsiniz. bpftrace arka planda bu script'i C'ye cevirir, compile eder ve yukler — siz sadece script yazarsiniz.
+   - **C ile:** `SEC("tracepoint/syscalls/sys_enter_openat")` gibi annotation'larla tam eBPF programi yazarsiniz. `clang -target bpf` ile compile edersiniz. Daha fazla kontrol, daha fazla kod.
 
-2. **Compile et** — Clang/LLVM bunu eBPF bytecode'a derler (bpftrace bunu dahili yapar)
-3. **Yukle** — Loader, bytecode'u `bpf()` system call'i ile kernel'a gonderir
-[REVIEW: bpf() fonksiyonu burada tam ne yapiyor biraz daha teknik detay?]
+2. **Compile et** — Clang/LLVM, C kodunuzu **eBPF bytecode**'a derler. Bu bytecode x86 veya ARM degil, eBPF sanal makinesinin anlayacagi ozel bir instruction set'tir (11 register, 64-bit). bpftrace kullaniyorsaniz bu adimi bpftrace otomatik yapar.
+
+3. **Yukle** — Loader, bytecode'u `bpf()` system call'i ile kernel'a gonderir. `bpf()` syscall'i cok yonlu bir arayuzdur:
+
+   ```c
+   int bpf(int cmd, union bpf_attr *attr, unsigned int size);
+   ```
+
+   | `cmd` degeri | Ne yapar |
+   |-------------|----------|
+   | `BPF_PROG_LOAD` | eBPF programini kernel'a yukler |
+   | `BPF_MAP_CREATE` | Yeni bir BPF map olusturur |
+   | `BPF_MAP_LOOKUP_ELEM` | Map'ten veri okur |
+   | `BPF_MAP_UPDATE_ELEM` | Map'e veri yazar |
+   | `BPF_PROG_ATTACH` | Programi bir event'e baglar |
+
+   Yani `bpf()` tek bir syscall icinde program yukleme, map yonetimi ve program baglama islemlerini yapar. Her islem icin farkli bir `cmd` degeri kullanilir.
 
 4. **Dogrula** — Kernel verifier her instruction path'i statik olarak analiz eder
 5. **Bagla** — Dogrulanan program JIT-compile edilir ve bir kernel event hook'una attach olur
@@ -153,22 +200,6 @@ Bu araclarin hepsinin altinda eBPF calisir:
 | 5 | Network Tracing | Socket connect, kprobe, TCP/HTTP, DNS parsing |
 | 6 | XDP Packet Processing | Packet parsing, rate limiting, load balancing |
 | 7 | Ileri Konular | Tracing mekanizmalari, XDP root pattern, Go entegrasyonu |
-
----
-
-## Quiz 1 — SSH ile Cevaplayin!
-
-> Her dogru cevap: **+20 puan** (takim) + **+10 puan** (bireysel)
->
-> Takimlar tartissin, bir kisi cevap versin.
-
-**S1:** eBPF'i tek cumleyle aciklayin.
-
-**S2:** eBPF kullanan 3 gercek dunyadan arac sayabilir misiniz?
-
-**S3:** eBPF programini kernel'a yukleyen system call hangisi?
-
-**S4:** Guvenlik kontrolunu kim yapar — compiler mi, verifier mi, yoksa JIT mi?
 
 ---
 

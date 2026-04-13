@@ -111,6 +111,32 @@ for user in "${PARTICIPANTS[@]}"; do
     fi
 done
 
+# Concurrent bpftrace icin RLIMIT_MEMLOCK ayari
+header "\n--- Concurrent eBPF Ayarlari ---"
+
+# locked memory limitini artir (6 kisi ayni anda bpftrace calistiracak)
+if ! grep -q "memlock" /etc/security/limits.d/ebpf-workshop.conf 2>/dev/null; then
+    cat > /etc/security/limits.d/ebpf-workshop.conf << 'LIMITS'
+# eBPF Workshop: BPF map'ler icin locked memory limiti
+*    soft    memlock    unlimited
+*    hard    memlock    unlimited
+LIMITS
+    info "RLIMIT_MEMLOCK: unlimited olarak ayarlandi (BPF map'ler icin)"
+else
+    info "RLIMIT_MEMLOCK: zaten ayarli"
+fi
+
+# perf_event_paranoid: bpftrace icin gerekli
+PARANOID=$(cat /proc/sys/kernel/perf_event_paranoid 2>/dev/null || echo "?")
+if [[ "$PARANOID" -gt 1 ]]; then
+    echo 1 > /proc/sys/kernel/perf_event_paranoid
+    echo "kernel.perf_event_paranoid = 1" >> /etc/sysctl.d/99-ebpf-workshop.conf
+    sysctl -p /etc/sysctl.d/99-ebpf-workshop.conf &>/dev/null
+    info "perf_event_paranoid: 1 olarak ayarlandi"
+else
+    info "perf_event_paranoid: $PARANOID (uygun)"
+fi
+
 info "Tum katilimci kullanicilari hazir."
 echo
 info "Kullanicilar ve sifre:"

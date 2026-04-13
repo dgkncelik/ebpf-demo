@@ -121,8 +121,6 @@ int execve(const char *filename, char *const argv[], char *const envp[]);
 
 Kprobe'lar, **herhangi bir kernel fonksiyonuna ismiyle** attach olur. Tracepoint'lerin aksine, stable API'nin parcasi **degildir** — fonksiyon isimleri kernel versiyonlari arasinda degisebilir.
 
-[REVIEW: burada trace pointler ve kproble'larin farki hakkinda biraz daha detay ver. Implementasyon ve uygulamada ne gibi farklari var? nerede hangisi kullanilmali? ]
-
 ```bash
 # Mevcut kernel fonksiyonlarini listeleyin:
 sudo bpftrace -l 'kprobe:*' | wc -l          # genellikle 50.000+
@@ -131,16 +129,42 @@ sudo bpftrace -l 'kprobe:*' | wc -l          # genellikle 50.000+
 sudo bpftrace -e 'kprobe:tcp_v4_rcv { @[comm] = count(); }'
 ```
 
-### Tracepoint mi Kprobe mu?
+### Tracepoint vs Kprobe — Detayli Karsilastirma
+
+**Implementasyon farki:**
+
+- **Tracepoint:** Kernel gelistiricileri tarafindan kaynak koda **bilinçli olarak** yerlestirilen hook noktalaridir. `TRACE_EVENT()` macro'su ile tanimlanir. Kernel ekibi bunlari stabil tutar — field'lar ve isimler minor versiyonlarda degismez.
+
+- **Kprobe:** Kernel'in **herhangi bir fonksiyonunun giris noktasina** (kprobe) veya cikis noktasina (kretprobe) dinamik olarak breakpoint koyar. Kernel'in fonksiyon tablosunu kullanir, bu yuzden fonksiyon adi veya signature'i degisirse programiniz bozulur.
 
 | | Tracepoint | Kprobe |
 |---|-----------|--------|
-| Stabilite | Versiyonlar arasi stabil | Kernel update'inde bozulabilir |
-| Kapsam | Secilmis event seti | HERHANGi bir kernel fonksiyonu |
-| Performans | Biraz daha hizli | Biraz daha yavas |
-| Kullanim | Production monitoring | Derin debugging |
+| **Implementasyon** | Kaynak koda gomulu stabil hook | Dinamik breakpoint injection |
+| **Stabilite** | Kernel ABI garantisi var | Fonksiyon adi/signature degisebilir |
+| **Kapsam** | ~1000 onceden tanimli event | ~50.000+ kernel fonksiyonu |
+| **Performans** | Biraz daha hizli (derlenme zamaninda optimize) | Biraz daha yavas (runtime breakpoint) |
+| **Erisilecek veri** | Sadece tanimli field'lar | Fonksiyonun tum argument'leri |
+| **Kullanim** | Production monitoring, uzun sureli izleme | Tek seferlik debug, ic yapi inceleme |
 
-**Kural:** Tracepoint varsa tracepoint kullanin. Yoksa kprobe'a basvurun.
+**Ornek: Ayni isi iki yontemle yapmak**
+
+```bash
+# Tracepoint ile (stabil, tercih edilir):
+sudo bpftrace -e 'tracepoint:syscalls:sys_enter_openat { printf("%s %s\n", comm, str(args.filename)); }'
+
+# Kprobe ile (ayni is, ama fonksiyon adi degisebilir):
+sudo bpftrace -e 'kprobe:do_sys_openat2 { printf("%s\n", comm); }'
+# Not: Kprobe'da args.filename gibi guzel field isimleri yok — raw register degerlerini parse etmeniz gerekir.
+```
+
+**Ne zaman kprobe kullanmalisiniz?**
+
+Tracepoint olmayan dahili kernel fonksiyonlarini izlemeniz gerektiginde. Ornegin:
+- `kprobe:tcp_retransmit_skb` — TCP retransmission'lari izlemek (tracepoint yok)
+- `kprobe:vfs_write` — VFS katmaninda write islemlerini izlemek
+- `kprobe:schedule` — Scheduler davranisini incelemek
+
+**Altin kural:** Tracepoint varsa **her zaman** tracepoint kullanin. Kprobe sadece tracepoint'in karsilamadigi durumlarda basvurulacak son caredir.
 
 ---
 
@@ -258,15 +282,28 @@ int xdp_full_parse(struct xdp_md *ctx) {
 
 Uprobe'lar **user-space binary'lerdeki** fonksiyonlara attach olur. Uygulamayi degistirmeden uygulama davranisini trace etmek icin kullanilir.
 
-[REVIEW: kprobe ve tracepoint ile farki nedir, gunluk hayatimizda kullanimini orneklendir. Bunun icinde demoya bir ornek eklenebilir]
+Tracepoint ve kprobe **kernel** fonksiyonlarina hook olurken, uprobe **user-space** binary'lerine hook olur. Fark:
+
+| | Tracepoint / Kprobe | Uprobe |
+|---|---------------------|--------|
+| **Hook noktasi** | Kernel fonksiyonlari | User-space binary fonksiyonlari |
+| **Gorebildigi** | Kernel internal state | Uygulama seviyesi veri |
+| **Ornek** | `sys_enter_openat` (kernel syscall) | `malloc` (libc fonksiyonu) |
+
+**SysAdmin icin gunluk hayat ornekleri:**
 
 ```bash
-# libc'deki her malloc cagrisini trace edin:
+# Hangi process en cok memory allocate ediyor?
 sudo bpftrace -e 'uprobe:/lib64/libc.so.6:malloc { @[comm] = count(); }'
 
-# SSL_read'i trace edin (sifrelenmis icerik cozulurken):
-sudo bpftrace -e 'uprobe:/usr/lib64/libssl.so:SSL_read { printf("%s\n", comm); }'
+# SSL/TLS baglantisi kuran process'leri gorun (HTTPS trafigi kim yapiyor?):
+sudo bpftrace -e 'uprobe:/lib64/libssl.so.3:SSL_connect { printf("SSL connect: %s (pid=%d)\n", comm, pid); }'
+
+# PostgreSQL query'lerini trace edin (eger sunucuda postgres varsa):
+# sudo bpftrace -e 'uprobe:/usr/bin/postgres:exec_simple_query { printf("Query: %s\n", str(arg0)); }'
 ```
+
+**Gercek senaryo:** Sunucunuzda bir process surekli disariya HTTPS baglantisi acıyor ama hangisi bilmiyorsunuz. `tcpdump` sadece paketleri gosterir, process bilgisi vermez. Uprobe ile `SSL_connect`'e hook yapip hangi process'in SSL baglantisi baslattigini aninda gorursunuz.
 
 ---
 
@@ -278,18 +315,6 @@ sudo bpftrace -e 'uprobe:/usr/lib64/libssl.so:SSL_read { printf("%s\n", comm); }
 | **Kprobe** | Herhangi bir kernel fonksiyonu | Degisebilir | Derin debugging |
 | **XDP** | Network driver (pre-stack) | Stabil | Hizli paket filtreleme |
 | **Uprobe** | User-space binary fonksiyonlari | Binary'ye bagli | Uygulama tracing |
-
----
-
-## Quiz 2 — Takim Yarismasil
-
-> Her dogru cevap: **+20 puan** (takim) + **+10 puan** (bireysel)
-
-**S1:** Tracepoint ile kprobe arasindaki temel fark nedir?
-
-**S2:** Paketleri kernel network stack'inden once islyen eBPF program turu hangisi?
-
-**S3:** Bir tracepoint'in field'larini gormek icin hangi komutu kullaniriz?
 
 ---
 

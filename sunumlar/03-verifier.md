@@ -149,35 +149,77 @@ sudo bpftrace verifier_fix.bt
 
 ## BTF ve CO-RE (Tasinabilirlik)
 
-[REVIEW: bu basligi biraz daha genislet cok az bilgi ve ornek var]
-
 > *Referans: [eBPFHub — Verifier ve BTF/CO-RE](https://ebpfhub.dev/tr/exercises/ebpf-araclar/verifier-btf/)*
 
-Farkli kernel versiyonlarinda struct layout'lari degisebilir. **BTF (BPF Type Format)** ve **CO-RE (Compile Once, Run Everywhere)** bu sorunu cozer.
+### Problem: Kernel Struct'lari Degisir
 
-[REVIEW: nasil cozer? biraz daha teknik detay]
+Bir eBPF programi `struct task_struct` icerisindeki `comm` field'ina offset 1234'ten eriisyor diyelim. Ama yeni kernel versiyonunda bu struct'a yeni field'lar eklendi ve `comm`'un offset'i artik 1256. Eski programiniz **yanlis memory'yi** okur — ve verifier bunu yakalayamaz cunku compile-time'da dogru gorunur.
 
-### vmlinux.h
+Bu, eBPF'in en buyuk tasinabilirlik sorunuydu: **her kernel versiyonu icin yeniden derleme** gerekiyordu.
 
-Tum kernel type'larina tek bir header dosyasindan erisim:
+### Cozum: BTF + CO-RE
+
+**BTF (BPF Type Format)**, kernel'in kendi type bilgisini `/sys/kernel/btf/vmlinux` dosyasinda saklamasidir. Bu dosya kernel'deki **tum struct'larin** field isimlerini, tiplerini ve offset'lerini icerir.
+
+**CO-RE (Compile Once, Run Everywhere)** ise BTF'i kullanarak compile-time offset'leri **yukleme zamaninda** hedef kernel'e gore ayarlayan bir mekanizmadir.
+
+```
+Derleme Zamani                      Yukleme Zamani
+┌────────────────┐                  ┌────────────────────────┐
+│ eBPF programi  │                  │ Loader BTF'i okur      │
+│ "comm field'ini│     ──────>      │ "comm" offset'ini      │
+│  oku" der      │                  │ hedef kernel'de bulur  │
+│ (relocatable)  │                  │ ve programi patch'ler  │
+└────────────────┘                  └────────────────────────┘
+```
+
+### vmlinux.h — Tek Header ile Tum Kernel Type'lari
+
+Normalde kernel struct'larina erismek icin onlarca header dosyasi include etmeniz gerekir. `vmlinux.h` **tum** kernel type'larini tek bir dosyada toplar:
 
 ```bash
+# vmlinux.h olusturma (RHEL 9.x'de BTF destegi varsayilan olarak acik):
 bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h
+
+# Dosya boyutunu kontrol edin — genellikle 5-10 MB:
+ls -lh vmlinux.h
+
+# Icinde herhangi bir struct'i arayabilirsiniz:
+grep "struct task_struct {" vmlinux.h
 ```
 
-### BPF_CORE_READ
+Bu sayede `#include <linux/sched.h>`, `#include <linux/fs.h>` gibi onlarca header yerine tek bir `#include "vmlinux.h"` yeterlidir.
 
-Farkli kernel versiyonlarinda guvenle struct field okuma:
+### BPF_CORE_READ — Guvenli Cross-Kernel Okuma
 
 ```c
-// CO-RE OLMADAN: struct layout degisirse bozulur
-__u16 port = sk->__sk_common.skc_dport;
+#include "vmlinux.h"
+#include <bpf/bpf_core_read.h>
 
-// CO-RE ILE: kernel versiyonlari arasinda calisir
-__u16 port = BPF_CORE_READ(sk, __sk_common.skc_dport);
+SEC("kprobe/tcp_connect")
+int trace(struct pt_regs *ctx) {
+    struct sock *sk = (void *)PT_REGS_PARM1(ctx);
+
+    // CO-RE OLMADAN: struct layout degisirse bozulur
+    // __u16 port = sk->__sk_common.skc_dport;
+
+    // CO-RE ILE: kernel versiyonlari arasinda calisir
+    __u16 port = BPF_CORE_READ(sk, __sk_common.skc_dport);
+
+    // Ic ice struct okuma bile guvenli:
+    // task -> mm -> exe_file -> f_path.dentry -> d_name.name
+    // BPF_CORE_READ her adimda dogru offset'i ayarlar
+    return 0;
+}
 ```
 
-`BPF_CORE_READ`, relocatable okuma uretir. Loader, calisan kernel'in BTF bilgisine gore field offset'lerini yukleme zamaninda ayarlar.
+`BPF_CORE_READ`, **relocatable** okuma uretir. Loader, calisan kernel'in BTF bilgisine gore field offset'lerini yukleme zamaninda ayarlar. Boylece RHEL 9.0'da derlediginiz program RHEL 9.4'te de calisir.
+
+### SysAdmin icin Bu Neden Onemli?
+
+Production'da eBPF araci dagitacaksaniz (ornegin bir monitoring agent), CO-RE sayesinde **tek bir binary** tum kernel versiyonlarinda calisir. BTF olmadan her sunucu icin ayri derleme yapmak gerekirdi.
+
+> **Not:** bpftrace kullanidigimiz surece BTF/CO-RE ile dogrudan ugrasmamiza gerek yok — bpftrace bunlari dahili olarak handle eder. Ama C ile eBPF yazacaksaniz CO-RE bilmek zorunludur.
 
 ---
 

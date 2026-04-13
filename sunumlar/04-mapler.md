@@ -44,7 +44,18 @@ Map'ler, **kernel tarafinda kalici veri yapilaridir**. Sunlar arasinda paylasiml
 | `BPF_MAP_TYPE_PERCPU_HASH` | CPU basina hash tablosu | Yuksek performansli counter (lock contention yok) |
 | `BPF_MAP_TYPE_LPM_TRIE` | Longest prefix match | CIDR bazli IP engelleme |
 | `BPF_MAP_TYPE_PROG_ARRAY` | Program FD array'i | Tail call (program zincirleme) |
-[REVIEW: nerde neden kullanildiklarina dair ornek]
+
+### Gercek Hayat Kullanim Ornekleri
+
+| Senaryo | Map Turu | Nasil Kullanilir |
+|---------|----------|-----------------|
+| **IP blocklist** (DDoS koruması) | `HASH` | Engellenen IP'ler key olarak saklanir. XDP programi her pakette IP'yi map'te arar, bulursa `XDP_DROP` | 
+| **Per-process syscall sayaci** | `PERCPU_HASH` | Her CPU'da ayri counter tutulur, lock contention olmaz. `comm` key, sayi value |
+| **Syscall latency olcme** | `HASH` + `RINGBUF` | Entry'de timestamp sakla (HASH), exit'te delta hesapla ve user space'e gonder (RINGBUF) |
+| **Rate limiting** | `HASH` | Her IP icin son istek zamani ve token sayisi saklanir. Zaman asildiginda yeni token eklenir |
+| **Load balancer backend listesi** | `ARRAY` | Backend IP'leri index ile tutulur. Round-robin icin atomic counter ile index secilir |
+| **CIDR bazli firewall** | `LPM_TRIE` | `10.0.0.0/8` gibi subnet'ler longest prefix match ile eslestirilir |
+| **XDP program chaining** (Katran modeli) | `PROG_ARRAY` | Farkli programlar tail call ile zincir halinde cagrilir |
 
 > *Referans: [eBPFHub — Hizli Referans](https://ebpfhub.dev/tr/exercises/referans/quick-reference/)*
 
@@ -104,7 +115,18 @@ bpftrace, map'leri `@` syntax'i ile kolaylastirir:
 @mymap[key] = min(val);      // minimum
 @mymap[key] = max(val);      // maksimum
 ```
-[REVIEW: bu bpf scriptinin icinde mi kullanilir C programinda mi? biraz daha detay]
+
+> **Onemli:** `@` syntax'i **sadece bpftrace'e** ozgudur. C ile yazdiginda map'leri struct olarak tanimlar ve `bpf_map_lookup_elem()` / `bpf_map_update_elem()` helper fonksiyonlarini kullanirsiniz (yukarida gosterildigi gibi).
+
+**Fark ozeti:**
+
+| | bpftrace | C (libbpf) |
+|---|---------|-----------|
+| Map tanimlama | Otomatik (`@mymap[key]` yazinca olusur) | Manuel struct tanimlama gerekli |
+| Veri yazma | `@mymap[key] = count();` | `bpf_map_update_elem(&map, &key, &val, BPF_ANY);` |
+| Veri okuma | Otomatik (Ctrl+C'de basilir) | `bpf_map_lookup_elem(&map, &key);` (NULL check zorunlu!) |
+| Histogram | `@lat = hist($delta);` (tek satir) | Kendiniz bucket mantigi yazmaniz gerekir |
+| Kullanim alani | Hizli analiz, debug, workshop | Production araclari, uzun sureli monitoring |
 
 Ctrl+C yaptiginizda bpftrace tum map'leri otomatik olarak yazdirir.
 

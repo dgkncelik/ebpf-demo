@@ -1,6 +1,6 @@
 # Bolum 9 — eBPFHub & Sonraki Adimlar
 
-[← Bonus](08-bonus.md) | [INDEX](../INDEX.md) | [Skor Tablosu →](../SCORECARD.md)
+[← Bonus](08-bonus.md) | [INDEX](../INDEX.md) | [Sonraki: Quiz →](10-quiz.md)
 
 ---
 
@@ -150,4 +150,4 @@ sudo profile-bpfcc -F 99 5
 
 ---
 
-[← Bonus](08-bonus.md) | [INDEX](../INDEX.md) | [Skor Tablosu →](../SCORECARD.md)
+[← Bonus](08-bonus.md) | [INDEX](../INDEX.md) | [Sonraki: Quiz →](10-quiz.md)
