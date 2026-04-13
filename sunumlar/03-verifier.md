@@ -6,6 +6,10 @@
 
 > *Referans: [eBPFHub — Verifier ve BTF/CO-RE](https://ebpfhub.dev/tr/exercises/ebpf-araclar/verifier-btf/)*
 
+# `DEMO` — Birlikte Inceleyelim
+
+> Birlikte inceleriz — puan **yoktur**.
+
 ## Verifier Neden Var?
 
 Kernel'de keyfi kod calistirabilseydiniz:
@@ -111,6 +115,12 @@ __u32 src = ip->saddr;            // bounds check'ten sonra guvenli
 ```
 
 ---
+
+---
+
+# `CTF` — Takimlar SSH'ta Cozer, Puan Kazanir!
+
+> Verifier hatasini duzeltin. Ilk duzelten kisiye **+30 bireysel bonus puan** var!
 
 ## Interaktif: Verifier'i Kirin! (SSH ile)
 

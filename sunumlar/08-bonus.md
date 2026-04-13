@@ -4,7 +4,10 @@
 
 ---
 
-> Takimlar bagimsiz calisir. Ilk tamamlayan takim temel puanin ustune **+50 bonus puan** alir!
+# `CTF` — Bu Bolumun Tamami CTF!
+
+> **Burada gosterim YOKTUR.** Takimlar bagimsiz calisir, Dogukan sadece destek verir.
+> Ilk tamamlayan takim temel puanin ustune **+50 bonus puan** alir!
 >
 > Tum dosyalar sunucuda: `/opt/ebpf-demo/demos/challenges/`
 
@@ -206,7 +209,7 @@ tracepoint:syscalls:sys_enter_execve
 
 ---
 
-## One-Liner Yarismasi
+## `CTF` — One-Liner Yarismasi
 
 Her takimdan bir kisi, en iyi **bpftrace one-liner**'ini yazar. Workshop sonunda herkes oy verir.
 

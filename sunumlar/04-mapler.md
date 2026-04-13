@@ -6,6 +6,10 @@
 
 > *Referans: [eBPFHub — Maps and multiple programs](https://ebpfhub.dev/tr/exercises/chapter-2/intro-maps-and-programs/)*
 
+# `DEMO` — Birlikte Inceleyelim
+
+> Birlikte inceleriz — puan **yoktur**. Map kavramini anladiktan sonra challenge'larda kullanacaksiniz.
+
 ## Problem: eBPF Programlari Stateless'tir
 
 Her event tetiklendiginde eBPF programiniz calisir ve cikar. Onceki calismalarin **hicbir hafizasi yoktur**.
@@ -189,7 +193,7 @@ int on_process_exit(struct trace_event_raw_sys_enter *ctx) {
 
 ---
 
-## Pratikte Gorelim (SSH ile)
+## `DEMO` Devam — Pratikte Gorelim (SSH ile)
 
 Hazir bir ornek calistiralim:
 

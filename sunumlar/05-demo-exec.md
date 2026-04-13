@@ -31,6 +31,12 @@ int execve(const char *filename, char *const argv[], char *const envp[]);
 
 ---
 
+---
+
+# `DEMO` — Birlikte Inceleyelim
+
+> Birlikte kodu inceleriz ve calistiririz. Puan **yoktur**.
+
 ## Canli Kodlama — Herkes SSH ile Birlikte Yazsin!
 
 ### Adim 1: Script'i inceleyin
@@ -83,9 +89,16 @@ str(args.filename)                Calistirilan binary (ornegin "/usr/bin/ls")
                                   (bpftrace user memory'yi bizim icin okur)
 ```
 
-> **PUAN:** Base demo'yu basariyla calistirdiniz → **+100 puan** (takim)
+> **Not:** Bu gosterimdi — puan yok. Simdi asil challenge'lar basliyor!
 
 ---
+
+---
+
+# `CTF` — Takimlar SSH'ta Cozer, Puan Kazanir!
+
+> Bu kisimda takimlar kendi basina calisir. Dogukan destek verir ama cozumu soylemez.
+> Ilk tamamlayan takim **+50 bonus puan** alir.
 
 ## Challenge 1A — UID ve Zaman Damgasi Ekleyin (+50 puan)
 

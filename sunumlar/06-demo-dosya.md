@@ -30,6 +30,12 @@ Bu komut size tracepoint'in tum field'larini gosterir: `filename`, `flags`, `mod
 
 ---
 
+---
+
+# `DEMO` — Birlikte Inceleyelim
+
+> Birlikte kodu inceleriz ve calistiririz. Puan **yoktur**.
+
 ## Canli Kodlama — SSH ile Birlikte
 
 ### Adim 1: Script'i inceleyin
@@ -68,9 +74,15 @@ systemctl status sshd
 
 Diger takimlarin dosya erisimlerini de goreceksiniz cunku herkes ayni sunucuda.
 
-> **PUAN:** Base demo'yu calistirdiniz → **+100 puan** (takim)
+> **Not:** Bu gosterimdi — puan yok. Simdi asil challenge'lar basliyor!
 
 ---
+
+---
+
+# `CTF` — Takimlar SSH'ta Cozer, Puan Kazanir!
+
+> Takimlar kendi basina calisir. Ilk tamamlayan takim **+50 bonus puan** alir.
 
 ## Challenge 2A — Hedefli Gozlem: Sadece /etc/ (+50 puan)
 

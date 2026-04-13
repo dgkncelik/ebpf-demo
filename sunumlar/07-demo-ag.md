@@ -75,6 +75,12 @@ struct sockaddr_in {
 
 ---
 
+---
+
+# `DEMO` — Birlikte Inceleyelim
+
+> Birlikte kodu inceleriz ve calistiririz. Puan **yoktur**.
+
 ## Canli Kodlama — Paket Sayici
 
 ### Adim 1: Script'i inceleyin
@@ -115,9 +121,15 @@ ssh localhost echo test 2>/dev/null
 
 Her 5 saniyede bir process bazinda paket sayisini goreceksiniz. Diger takimlarin trafigini de goreceksiniz!
 
-> **PUAN:** Base demo'yu calistirdiniz → **+100 puan** (takim)
+> **Not:** Bu gosterimdi — puan yok. Simdi asil challenge'lar basliyor!
 
 ---
+
+---
+
+# `CTF` — Takimlar SSH'ta Cozer, Puan Kazanir!
+
+> Takimlar kendi basina calisir. Ilk tamamlayan takim **+50 bonus puan** alir.
 
 ## Challenge 3A — TCP Baglanti Takipcisi (+50 puan)
 

@@ -4,6 +4,9 @@
 
 ---
 
+# `SORU YARISMASI` — Bilgi Testi
+
+> **Bu bolumde pratik kodlama YOKTUR.** Soru-cevap formatinda bilgi yarismasi yapilir.
 > Tum pratik demolar ve challenge'lar bitti. Simdi bugun ogrendiklerinizi test edelim!
 > Takimlar icinde tartisabilirsiniz. Bir kisi cevap verir. Ilk dogru cevap **+10 bonus puan** alir.
 

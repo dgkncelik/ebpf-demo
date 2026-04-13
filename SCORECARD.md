@@ -21,14 +21,14 @@
 
 ## Bireysel Skor Tablosu
 
-| Kisi | Takim | Pre-flight | Quiz 1 | Quiz 2 | Verifier | Toplam |
-|------|-------|-----------|--------|--------|----------|--------|
-| Burak | 1 | /10 | | | | |
-| Oguzhan | 1 | /10 | | | | |
-| Yasin | 2 | /10 | | | | |
-| Buse | 2 | /10 | | | | |
-| Ugur | 3 | /10 | | | | |
-| Serhat | 3 | /10 | | | | |
+| Kisi | Takim | Pre-flight | Verifier | Soru Yarismasi | Toplam |
+|------|-------|-----------|----------|---------------|--------|
+| Burak | 1 | /10 | | | |
+| Oguzhan | 1 | /10 | | | |
+| Yasin | 2 | /10 | | | |
+| Buse | 2 | /10 | | | |
+| Ugur | 3 | /10 | | | |
+| Serhat | 3 | /10 | | | |
 
 ---
 
@@ -45,34 +45,7 @@
 
 ---
 
-## Bolum 1 — Quiz 1: eBPF Nedir?
-
-*+20 puan (takim) / +10 puan (bireysel) her dogru cevap icin*
-
-| Soru | Takim 1 | Takim 2 | Takim 3 |
-|------|---------|---------|---------|
-| S1: eBPF'i tek cumleyle aciklayin | | | |
-| S2: eBPF kullanan 3 arac sayabilir misiniz? | | | |
-| S3: eBPF'i kernel'a yukleyen syscall? | | | |
-| S4: Guvenlik: compiler mi, verifier mi, JIT mi? | | | |
-
-**Ilk dogru cevap bonusu (+10):** _______________
-
----
-
-## Bolum 2 — Quiz 2: Program Turleri
-
-*+20 puan (takim) / +10 puan (bireysel)*
-
-| Soru | Takim 1 | Takim 2 | Takim 3 |
-|------|---------|---------|---------|
-| S1: Tracepoint ile kprobe farki? | | | |
-| S2: Pre-stack paket isleme turu? | | | |
-| S3: Tracepoint field'larini gorme komutu? | | | |
-
----
-
-## Bolum 3 — Verifier Challenge (SSH ile)
+## Bolum 3 — `CTF`: Verifier Challenge (SSH ile)
 
 | Aktivite | Puan | Takim 1 | Takim 2 | Takim 3 |
 |----------|------|---------|---------|---------|
@@ -91,40 +64,40 @@
 
 ---
 
-## Bolum 5 — Demo 1: Kim Ne Calistiriyor? (SSH ile)
+## Bolum 5 — `DEMO` + `CTF`: Kim Ne Calistiriyor? (SSH ile)
 
-| Aktivite | Puan | Takim 1 | Takim 2 | Takim 3 |
-|----------|------|---------|---------|---------|
-| Base demo calistirildi | 100 | | | |
-| Challenge 1A: UID + timestamp | 50 | | | |
-| Challenge 1B: Kullaniciya gore filtre | 50 | | | |
-| **Ilk tamamlayan bonus** | 50 | | | |
-
----
-
-## Bolum 6 — Demo 2: Dosya Casusu (SSH ile)
-
-| Aktivite | Puan | Takim 1 | Takim 2 | Takim 3 |
-|----------|------|---------|---------|---------|
-| Base demo calistirildi | 100 | | | |
-| Challenge 2A: /etc/ filtresi | 50 | | | |
-| Challenge 2B: Process basina sayim | 50 | | | |
-| **Ilk tamamlayan bonus** | 50 | | | |
+| Tur | Aktivite | Puan | Takim 1 | Takim 2 | Takim 3 |
+|-----|----------|------|---------|---------|---------|
+| `DEMO` | Base demo — Birlikte inceleyelim | — | — | — | — |
+| `CTF` | Challenge 1A: UID + timestamp | 50 | | | |
+| `CTF` | Challenge 1B: Kullaniciya gore filtre | 50 | | | |
+| `CTF` | **Ilk tamamlayan bonus** | 50 | | | |
 
 ---
 
-## Bolum 7 — Demo 3: Ag Koruyucusu (SSH ile)
+## Bolum 6 — `DEMO` + `CTF`: Dosya Casusu (SSH ile)
 
-| Aktivite | Puan | Takim 1 | Takim 2 | Takim 3 |
-|----------|------|---------|---------|---------|
-| Base demo calistirildi | 100 | | | |
-| Challenge 3A: TCP baglanti takibi | 50 | | | |
-| Challenge 3B: Protokol dagilimi | 50 | | | |
-| **Ilk tamamlayan bonus** | 50 | | | |
+| Tur | Aktivite | Puan | Takim 1 | Takim 2 | Takim 3 |
+|-----|----------|------|---------|---------|---------|
+| `DEMO` | Base demo — Birlikte inceleyelim | — | — | — | — |
+| `CTF` | Challenge 2A: /etc/ filtresi | 50 | | | |
+| `CTF` | Challenge 2B: Process basina sayim | 50 | | | |
+| `CTF` | **Ilk tamamlayan bonus** | 50 | | | |
 
 ---
 
-## Bolum 8 — Bonus Challenge'lar (SSH ile)
+## Bolum 7 — `DEMO` + `CTF`: Ag Koruyucusu (SSH ile)
+
+| Tur | Aktivite | Puan | Takim 1 | Takim 2 | Takim 3 |
+|-----|----------|------|---------|---------|---------|
+| `DEMO` | Base demo — Birlikte inceleyelim | — | — | — | — |
+| `CTF` | Challenge 3A: TCP baglanti takibi | 50 | | | |
+| `CTF` | Challenge 3B: Protokol dagilimi | 50 | | | |
+| `CTF` | **Ilk tamamlayan bonus** | 50 | | | |
+
+---
+
+## Bolum 8 — `CTF`: Bonus Challenge'lar (SSH ile)
 
 *Ilk tamamlayan takim temel puanin ustune +50 bonus!*
 
@@ -133,6 +106,35 @@
 | Bonus 1: Process yasam dongusu | 100 | | | | |
 | Bonus 2: Yavas syscall bulucu | 100 | | | | |
 | Bonus 3: Yasakli komut | 100 | | | | |
+
+---
+
+## Bolum 10 — `SORU YARISMASI`: Bilgi Testi
+
+*+20 puan (takim) / +10 puan (bireysel — cevaplayan kisiye) her dogru cevap icin*
+
+| Tur | Soru | Takim 1 | Takim 2 | Takim 3 | Ilk Cevap Bonusu |
+|-----|------|---------|---------|---------|-----------------|
+| 1 | S1: eBPF'i tek cumleyle aciklayin | | | | |
+| 1 | S2: BPF ile eBPF farki? | | | | |
+| 1 | S3: bpf() syscall | | | | |
+| 1 | S4: Guvenlik — verifier mi? | | | | |
+| 1 | S5: 3 gercek dunya araci | | | | |
+| 2 | S6: Tracepoint vs kprobe | | | | |
+| 2 | S7: XDP = pre-stack | | | | |
+| 2 | S8: Field'lari gorme komutu | | | | |
+| 2 | S9: Uprobe ne yapar? | | | | |
+| 2 | S10: XDP_DROP vs XDP_PASS | | | | |
+| 3 | S11: NULL check neden? | | | | |
+| 3 | S12: Unbounded loop neden? | | | | |
+| 3 | S13: BTF/CO-RE ne cozer? | | | | |
+| 3 | S14: @counter[comm] = count() | | | | |
+| 3 | S15: tid vs pid key | | | | |
+| 4 | S16: bpftrace -l komutu | | | | |
+| 4 | S17: /uid == 1000/ filtresi | | | | |
+| 4 | S18: bpf_probe_read_user_str() | | | | |
+| 4 | S19: hist() ne uretir? | | | | |
+| 4 | S20: En faydali demo (acik uclu) | | | | |
 
 ---
 
