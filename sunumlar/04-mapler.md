@@ -44,6 +44,7 @@ Map'ler, **kernel tarafinda kalici veri yapilaridir**. Sunlar arasinda paylasiml
 | `BPF_MAP_TYPE_PERCPU_HASH` | CPU basina hash tablosu | Yuksek performansli counter (lock contention yok) |
 | `BPF_MAP_TYPE_LPM_TRIE` | Longest prefix match | CIDR bazli IP engelleme |
 | `BPF_MAP_TYPE_PROG_ARRAY` | Program FD array'i | Tail call (program zincirleme) |
+[REVIEW: nerde neden kullanildiklarina dair ornek]
 
 > *Referans: [eBPFHub — Hizli Referans](https://ebpfhub.dev/tr/exercises/referans/quick-reference/)*
 
@@ -103,6 +104,7 @@ bpftrace, map'leri `@` syntax'i ile kolaylastirir:
 @mymap[key] = min(val);      // minimum
 @mymap[key] = max(val);      // maksimum
 ```
+[REVIEW: bu bpf scriptinin icinde mi kullanilir C programinda mi? biraz daha detay]
 
 Ctrl+C yaptiginizda bpftrace tum map'leri otomatik olarak yazdirir.
 

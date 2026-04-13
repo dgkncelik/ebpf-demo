@@ -14,9 +14,13 @@ Bir event tetiklendiginde (bir process calistirilir, bir dosya acilir, bir netwo
 
 Bu islem **kernel seviyesinde** gerceklesir ve size user space'den tek basina elde edilmesi imkansiz olan sistem davranisi gorunurlugu saglar.
 
+[REVIEW: burada biraz daha detay ver, ebpf bunu nasil yapiyor: yapilma methodlari neler? bu metodlar arasinda nasil farkliliklar var]
+
 ---
 
 ## Neden Onemli? — Gercek Hayat Senaryosu
+
+[REVIEW: Neden ebpf gibi birseye ihtiyac duyuldu? Gunluk hayatimizda kullanidigimiz araclar var mi ebpf ile calisan? bpf ile ebpf arasinda fark nedir?]
 
 Diyelim ki sunucuda bir problem var:
 
@@ -104,8 +108,12 @@ Nasil bir web sitesi browser'inizi cokertemezse (sandbox sayesinde), bir eBPF pr
 **Adim adim:**
 
 1. **Yaz** — Kucuk bir program yazarsiniz (C veya bpftrace ile)
+[REVIEW:  bftrace ile yaparsak ne oluyor c ile yazip derleyince ne oluyor]
+
 2. **Compile et** — Clang/LLVM bunu eBPF bytecode'a derler (bpftrace bunu dahili yapar)
 3. **Yukle** — Loader, bytecode'u `bpf()` system call'i ile kernel'a gonderir
+[REVIEW: bpf() fonksiyonu burada tam ne yapiyor biraz daha teknik detay?]
+
 4. **Dogrula** — Kernel verifier her instruction path'i statik olarak analiz eder
 5. **Bagla** — Dogrulanan program JIT-compile edilir ve bir kernel event hook'una attach olur
 6. **Calistir** — Event her tetiklendiginde programiniz calisir ve map'lere yazar

@@ -121,6 +121,8 @@ int execve(const char *filename, char *const argv[], char *const envp[]);
 
 Kprobe'lar, **herhangi bir kernel fonksiyonuna ismiyle** attach olur. Tracepoint'lerin aksine, stable API'nin parcasi **degildir** — fonksiyon isimleri kernel versiyonlari arasinda degisebilir.
 
+[REVIEW: burada trace pointler ve kproble'larin farki hakkinda biraz daha detay ver. Implementasyon ve uygulamada ne gibi farklari var? nerede hangisi kullanilmali? ]
+
 ```bash
 # Mevcut kernel fonksiyonlarini listeleyin:
 sudo bpftrace -l 'kprobe:*' | wc -l          # genellikle 50.000+
@@ -255,6 +257,8 @@ int xdp_full_parse(struct xdp_md *ctx) {
 ## 4. Uprobe'lar — User-Space Fonksiyonlarina Hook
 
 Uprobe'lar **user-space binary'lerdeki** fonksiyonlara attach olur. Uygulamayi degistirmeden uygulama davranisini trace etmek icin kullanilir.
+
+[REVIEW: kprobe ve tracepoint ile farki nedir, gunluk hayatimizda kullanimini orneklendir. Bunun icinde demoya bir ornek eklenebilir]
 
 ```bash
 # libc'deki her malloc cagrisini trace edin:

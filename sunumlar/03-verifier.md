@@ -149,9 +149,13 @@ sudo bpftrace verifier_fix.bt
 
 ## BTF ve CO-RE (Tasinabilirlik)
 
+[REVIEW: bu basligi biraz daha genislet cok az bilgi ve ornek var]
+
 > *Referans: [eBPFHub — Verifier ve BTF/CO-RE](https://ebpfhub.dev/tr/exercises/ebpf-araclar/verifier-btf/)*
 
 Farkli kernel versiyonlarinda struct layout'lari degisebilir. **BTF (BPF Type Format)** ve **CO-RE (Compile Once, Run Everywhere)** bu sorunu cozer.
+
+[REVIEW: nasil cozer? biraz daha teknik detay]
 
 ### vmlinux.h
 

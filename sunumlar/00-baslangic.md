@@ -30,11 +30,10 @@ Herkes SSH ile sunucuya baglanacak ve **canli** kod yazacak.
 
 | Takim | Uyeler | Secilen Isim |
 |-------|--------|-------------|
-| **Takim 1** | Burak & Oguzhan | _______________ |
-| **Takim 2** | Yasin & Buse | _______________ |
-| **Takim 3** | Ugur & Serhat | _______________ |
+| **Takim 1** | ... | _______________ |
+| **Takim 2** | ... | _______________ |
+| **Takim 3** | ... | _______________ |
 
-> Dogukan sunumu yapiyor, takimlara destek veriyor.
 
 ---
 
@@ -94,18 +93,6 @@ Workshop boyunca **2 terminal penceresi** acmaniz gerekecek:
 
 - **Terminal 1:** bpftrace programini calistirmak icin
 - **Terminal 2:** test komutlari calistirmak icin (ls, curl, cat vs.)
-
-Bunu yapmanin yollari:
-
-```bash
-# Yol 1: tmux kullanin (sunucuda yuklu)
-tmux
-# Ctrl+B sonra % ile ekrani bolin
-# Ctrl+B sonra ok tuslari ile pencereler arasi gecis
-
-# Yol 2: Ikinci bir SSH baglantisi acin
-ssh <kullanici>@<sunucu-ip>
-```
 
 ---
 
